@@ -13,6 +13,7 @@
 #include <stdlib.h>     /* Needed for process handling. */
 #include <string.h>     /* Needed for string manipulations functions. */
 #include <stdio.h>      /* Needed for print functions. */
+#include <errno.h>      /* Needed for error handling. */
 
 #define NEWLINE_CHAR            '\n'    /* Newline character. */
 
@@ -21,11 +22,19 @@
 
 #define ENV_HOME                "HOME"  /* The variable name of the home path. */
 
+#define BACKGROUND_CHAR         '&'     /* The char that specifies that a command should be runned in background. */
+
+#define CHILD_FOREGROUND        1       /* The child should be executed in foreground, blocking that is. */
+#define CHILD_BACKGROUND        2       /* The child should be executed in background, non-blocking that is. */
+
+#define BACKGROUND_REMOVE_CHAR  1       /* Tells isBackgroundRequested function to remove BACKGROUND_CHAR from args list. */
+#define BACKGROUND_KEEP_CHAR    2       /* Tells isBackgroundRequested function to keep BACKGROUND_CHAR in args list. */
+
 /*
  * Macro to print better error messages and exit the process on error.
  * when parameter r < 0 the process gets killed and a error message is presented.
  */
-#define CHECK(r) if(r < 0) {perror(""); fprintf(stderr, "line: %d.\n", __LINE__); exit(EXIT_VALUE_ERROR);}
+#define CHECK(r) if(r < 0) {perror(""); fprintf(stderr, "file: %s line: %d.\n", __FILE__, __LINE__); exit(EXIT_VALUE_ERROR);}
 
 /*
  * printLine works just like printf, but it prints a NEWLINE_CHAR before and after the text.
@@ -43,7 +52,7 @@ int readLine(char *buffer, unsigned int size, FILE *stream);
  * array of NULL-terminated strings. The first string in the array is used to
  * identify which program to execute.
  */
-void executeChild(char *args[]);
+void executeChild(char *args[], unsigned int mode);
 
 /* TODO: Rewrite this to be more general.
  * This function will split the specified string _command_ into the array _args_
@@ -55,5 +64,7 @@ void executeChild(char *args[]);
  * If size is less than 1 will treat this as an error.
  */
 void explode(char *args[], const unsigned int size, char *command);
+
+int isBackgroundRequested(char **args, unsigned int size, unsigned int mode);
 
 #endif

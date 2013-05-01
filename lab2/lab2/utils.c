@@ -28,7 +28,7 @@ void printLine(const char *string, ...) {
 }
 
 int readLine(char *buffer, unsigned int size, FILE *stream) {
-    unsigned int loop;      /* An integer that will be used for scanning the input array. */
+    int loop;      /* An integer that will be used for scanning the input array. */
     char *result;           /* A pointer to be used when calling fgets method. The pointer will hold the return value. */
     
     /* Read from stdin into input array. */
@@ -47,7 +47,7 @@ int readLine(char *buffer, unsigned int size, FILE *stream) {
     }
     
     /* Remove newline character from the input buffer. Start from next last character since last is '\0'. */
-    for(loop = size-2; loop > 0; loop--) {
+    for(loop = size-2; loop >= 0; loop--) {
         if(buffer[loop] == '\n') {
             /* The value of the character in position i in the input array is an newline character. */
             
@@ -64,7 +64,7 @@ int readLine(char *buffer, unsigned int size, FILE *stream) {
     return 1;
 }
 
-void executeChild(char *args[]) {
+void executeChild(char *args[], unsigned int mode) {
     pid_t pid;      /* Variable to hold child process id. */
     
     /* Create a child process. */
@@ -74,33 +74,94 @@ void executeChild(char *args[]) {
         /* Child area. */
         
         /* Execute program specified as the first string in the arguments array */
-        CHECK(execvp(args[0], args));
+        if(execvp(args[0], args) != 0) {
+            /* The execution failed. */
+            
+            /* Write error messag to user. */
+            perror("\nCommand failed");
+            
+            /* Exit with failure status. */
+            exit(EXIT_VALUE_ERROR);
+        }
     } else {
         /* Parent area. */
         
-        int status; /* Variable to hold child termination status. */
+        if(mode == CHILD_FOREGROUND) {
+            /* Child is executing in foreground. */
+            
+            int status; /* Integer to be used for checking child status. */
+            
+            /* Print info to user. */
+            printLine("Foreground: executing '%s', with pid '%i'", args[0], pid);
         
-        /* Wait for child to terminate. This method call will be blocking since options is set to 0. */
-        waitpid(pid, &status, 0);
-        
-        /* Check termination status. */
-        if(!WIFEXITED(status)) {
-            /* Child process did not terminate by calling exit. */
+        wait: /* TODO: fix this ugly hack later. */
             
-            /* Force error. */
-            CHECK(-1);
-        } else {
-            /* Child process did exit normally. */
+            /* Block until the child changes status. */
+            pid = waitpid(pid, &status, 0);
             
-            /* Check the exit value of the status. */
-            int exit_value = WEXITSTATUS(status);
-            
-            if(exit_value == 1) {
-                /* The process exited with an error. */
+            if(pid == -1) {
+                /* An error occured. */
                 
-                /* Exit program with exit value EXIT_VALUE_ERROR to indicate error. */
-                exit(EXIT_VALUE_ERROR);
+                /* Check the error. */
+                if(errno == EINTR) {
+                    /* Interrupted system call. */
+                    
+                    /* That's okay. Just try again. */
+                    goto wait;
+                } else {
+                    /* Unhandled error. */
+                    
+                    /* Force program exit. */
+                    CHECK(-1);
+                }
+            } else if(pid != 0) {
+                /* The process have reported a status change. */
+                
+                /* Check termination status. */
+                if(WIFEXITED(status)) {
+                    /* Child process did terminate by calling exit. */
+                    
+                    /* Check the exit value of the status. */
+                    int exit_value = WEXITSTATUS(status);
+                    
+                    if(exit_value == 0) {
+                        /* The process exited normally. */
+                        
+                        /* Let user know. */
+                        printLine("Foreground: process '%i' terminated normally.", pid);
+                    } else {
+                        /* Process exited with error. */
+                        
+                        /* Let user know. */
+                        printLine("Foreground: process '%i' terminated with error '%i'", pid, exit_value);
+                    }
+                } else if(WIFSIGNALED(status)) {
+                    /* Process terminated due to receipt of a signal. */
+                    
+                    /* Retrieve the signal value. */
+                    int signal_value = WTERMSIG(status);
+                    
+                    /* Let user know the signal. */
+                    printLine("Foreground: process '%i' killed by signal '%i'", pid, signal_value);
+                } else {
+                    /* Process terminated in an unknown way. This should not happen. */
+                    
+                    /* Force error. */
+                    CHECK(-1);
+                }
             }
+        } else if(mode == CHILD_BACKGROUND){
+            /* Child is executing in background. */
+            
+            /* Tell user that the command is being executed. */
+            printLine("Background: executing '%s', with pid '%i'", args[0], pid);
+            
+            /* Do nothing more since the status changes of chils will be handles externally. */
+        } else {
+            /* Uknown mode passed to function. */
+            
+            /* Force an error. */
+            CHECK(-1);
         }
     }
 }
@@ -145,4 +206,28 @@ void explode(char *args[], const unsigned int size, char *command) {
             break;
         }
     }
+}
+
+int isBackgroundRequested(char **args, unsigned int size, unsigned int mode) {
+    int i = 0;
+    
+    for(i = 0; i < size; i++) {
+        if(args[i] == '\0') {
+            if(*args[i-1] == BACKGROUND_CHAR) {
+                if(mode == BACKGROUND_REMOVE_CHAR) {
+                    args[i-1] = '\0';
+                } else if(mode == BACKGROUND_KEEP_CHAR) {
+                    
+                } else {
+                    CHECK(-1);
+                }
+                
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+    }
+    
+    return 0;
 }

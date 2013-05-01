@@ -15,7 +15,12 @@ unsigned int executeCommand(char **args) {
     const char *command = args[0]; /* Variable to hold the command name. */
     
     /* Check if the command name (first element in args) is built it argument. */
-    if(strncmp(command, COMMAND_CD, strlen(COMMAND_CD)) == 0) {
+    if(*command == '\0') {
+        /* Empty command. */
+        
+        /* Do nothing. */
+        return 0;
+    } else if(strncmp(command, COMMAND_CD, strlen(COMMAND_CD)) == 0) {
         /* The command is the built in cd-command. */
         
         /* Call the command function. */
