@@ -19,6 +19,8 @@
 #define EXIT_VALUE_SUCCESS      0       /* The value which the program will exit with on success. */
 #define EXIT_VALUE_ERROR        1       /* The value which the program will exit with on error. */
 
+#define ENV_HOME                "HOME"  /* The variable name of the home path. */
+
 /*
  * Macro to print better error messages and exit the process on error.
  * when parameter r < 0 the process gets killed and a error message is presented.
