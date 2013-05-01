@@ -9,12 +9,15 @@
 #include <stdio.h>      /* Needed for read and print functions. */
 #include <stdlib.h>     /* Needed for exit function. */
 #include <string.h>     /* Needed for string manipulations functions. */
+#include <sys/time.h>   /* Needed for time functions. */
 
 #define COMMAND_MAX_LENGH       70      /* Max number of characters an user specified command can be. */
 #define ARGUMENTS_MAX_LENGTH    5       /* Max number of arguments that can be specified with commands. */
 
 #define EXIT_VALUE_SUCCESS      0       /* The value which the program will exit with on success. */
 #define EXIT_VALUE_ERROR        1       /* The value which the program will exit with on error. */
+
+#define PROMPT_TEXT             "> "    /* The text to display when waiting for user command. */
 
 #define COMMAND_CD              "cd"    /* The command to change working directory. */
 #define COMMAND_EXIT            "exit"  /* The command to exit the program. */
@@ -34,7 +37,8 @@ void readAndExecute(const unsigned int cmdMaxSize);
 
 /*
  * A function read a command from stdin of length cmdMaxSize (newline excluded).
- * Will execute the command by calling executeChild function.
+ * Will execute the command by calling executeChild function. If an external program is executed, 
+ * the function will print the number of milliseconds the process were alive.
  */
 void readAndExecute(const unsigned int cmdMaxSize) {
     unsigned int loop;                  /* An integer that will be used for scanning the input array. */
@@ -73,6 +77,8 @@ void readAndExecute(const unsigned int cmdMaxSize) {
     /* Parse the command line. Args will then contain all arguments of the command. */
     parseArguments(args, ARGUMENTS_MAX_LENGTH+2, input);
     
+    
+    
     /* Check for built-in commands. */
     if(strncmp(args[0], COMMAND_CD, cmdMaxSize) == 0) {
         /* The command is the built in cd-command. */
@@ -86,8 +92,23 @@ void readAndExecute(const unsigned int cmdMaxSize) {
     } else {
         /* The command is not a built in command. The command should be executed exeternally. */
         
+        struct timeval preExecute;      /* Structure to hold time info from pre execution of the command. */
+        struct timeval postExecute;     /* Structure to hold time info from post execution of the command. */
+        unsigned int elapsed;           /* The number of milliseconds needed for executing the command. */
+        
+        /* Get the current time for command execution statistics. */
+        CHECK(gettimeofday(&preExecute, NULL));
+        
         /* Execute the program with the executeChild function. */
         executeChild(args);
+        
+        /* Get the current time for command executions statistics. */
+        CHECK(gettimeofday(&postExecute, NULL));
+        
+        /* Return the elapsed time. */
+        elapsed = postExecute.tv_usec - preExecute.tv_usec;
+        
+        printf("\nCommand '%s' executed in %i milliseconds. \n", args[0], elapsed);
     }
 }
 
@@ -194,8 +215,15 @@ void parseArguments(char *args[], const unsigned int size, char *command) {
  */
 int main(int argc, const char * argv[]) {
     
-    /* Start the command reading and executions. */
-    readAndExecute(COMMAND_MAX_LENGH);
+    /* Read and execute commands until the exit command terminates the program, or an error occured. */
+    while (1) {
+        
+        /* Prompt the user for input. */
+        printf(PROMPT_TEXT);
+        
+        /* Start the command reading and executions. */
+        readAndExecute(COMMAND_MAX_LENGH);
+    }
     
     /* Terminate process normally. */
     return EXIT_VALUE_SUCCESS;
