@@ -55,7 +55,7 @@ void readAndExecute(const unsigned int cmdMaxSize) {
         if(strncmp(args[0], COMMAND_CD, cmdMaxSize) == 0) {
             /* The command is the built in cd-command. */
             
-            if(args[1] == NULL || args[3] != NULL) {
+            if(args[1] == '\0' || args[2] != '\0') {
                 /* The arguments are malformatted.*/
                 
                 /* Tell the user how to use the command. */
@@ -79,6 +79,9 @@ void readAndExecute(const unsigned int cmdMaxSize) {
                         CHECK(-1);
                     }
                 }
+                
+                /* Working directory have successfuly been changed. Let user know.*/
+                printLine("Working directory changed to '%s'", args[1]);
             }
         } else if (strncmp(input, COMMAND_EXIT, cmdMaxSize) == 0) {
             /* The command is the built in exit-command. */
