@@ -2,6 +2,10 @@
  *  utils.h
  *  lab2
  *
+ *  utils.h holds utility functions to be used by the shell program. The utility functions
+ *  consists of reading and printing strings, executing child proccesses, string manipulation
+ *  and command string checks. Also a macro for checking function return error values is defined.
+ *
  *  Created by Lucas Wiener & Mathias Lindblom.
  *  Copyright (c) 2013 os13. All rights reserved.
  */
@@ -38,33 +42,53 @@
 
 /*
  * printLine works just like printf, but it prints a NEWLINE_CHAR before and after the text.
+ *
+ * Will terminated program with value EXIT_VALUE_ERROR on fatal errors.
  */
 void printLine(const char *string, ...);
 
 /*
- * TODO: do me.
+ * readLine reads _size_ number of characters from the given stream _stream_. The newline character
+ * will be removed and replaced with a '\0' char, so _buffer_ will at maximum contain _size_ - 2 non-'\0' chars.
+ * readLine returns 0 on success. If no newline char is present at the end of the read buffer, the function will return 1.
+ *
+ * Will terminated program with value EXIT_VALUE_ERROR on fatal errors.
  */
-int readLine(char *buffer, unsigned int size, FILE *stream);
+unsigned int readLine(char *buffer, unsigned int size, FILE *stream);
 
 /*
  * A function that executes a program in a separate process by calling execvp.
  * Arguments to the program to execute should be provided by a NULL-terminated
  * array of NULL-terminated strings. The first string in the array is used to
- * identify which program to execute.
+ * identify which program to execute. The _mode_ parameter tells if the program
+ * should be executed in background or foreground mode, which can be set by using
+ * CHILD_FOREGROUND or CHILD_BACKGROUND. A foreground process will block until terminated,
+ * and additional execution info will be printed.
+ *
+ * Will terminated program with value EXIT_VALUE_ERROR on fatal errors.
  */
 void executeChild(char *args[], unsigned int mode);
 
-/* TODO: Rewrite this to be more general.
+/*
  * This function will split the specified string _command_ into the array _args_
  * containing all words separated by whitespaces. The whitespaces will not be retained
  * in the array read. If no whitespaces exists, the first item of _args_ array will equal
  * the command string. The args array will be NULL-terminated, and therefore the size of the args
  * array must be the max number of arguments to be read + 1. This is specified with the _size_ parameter.
- * If any error is encountered, the function will exit the program will value EXIT_VALUE_ERROR.
- * If size is less than 1 will treat this as an error.
+ * If size is less than 2 the function will treat this as a fatal error.
+ *
+ * Will terminated program with value EXIT_VALUE_ERROR on fatal errors.
  */
 void explode(char *args[], const unsigned int size, char *command);
 
-int isBackgroundRequested(char **args, unsigned int size, unsigned int mode);
+/*
+ * This function checks if an '&' char is present at the end of _args_ string.
+ * If it is present 1 will be return, otherwise 0. Mode determines if the '&' char
+ * should be removed from _args_ if found. The _mode_ parameter can either be
+ * BACKGROUND_REMOVE_CHAR or BACKGROUND_KEEP_CHAR.
+ *
+ * Will terminated program with value EXIT_VALUE_ERROR on fatal errors.
+ */
+unsigned int isBackgroundRequested(char **args, unsigned int size, unsigned int mode);
 
 #endif

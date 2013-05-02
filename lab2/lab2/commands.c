@@ -2,14 +2,13 @@
  *  commands.c
  *  lab2
  *
+ *  See commands.h for documentation.
+ *
  *  Created by Lucas Wiener & Mathias Lindblom.
  *  Copyright (c) 2013 os13. All rights reserved.
  */
 
 #include "commands.h"
-
-void command_cd(char **args);
-void command_exit();
 
 unsigned int executeCommand(char **args) {
     const char *command = args[0]; /* Variable to hold the command name. */

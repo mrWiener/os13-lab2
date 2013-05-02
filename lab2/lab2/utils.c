@@ -2,6 +2,8 @@
  *  utils.c
  *  lab2
  *
+ *  See utils.h for documentation.
+ *
  *  Created by Lucas Wiener & Mathias Lindblom.
  *  Copyright (c) 2013 os13. All rights reserved.
  */
@@ -27,9 +29,9 @@ void printLine(const char *string, ...) {
     va_end(ap);
 }
 
-int readLine(char *buffer, unsigned int size, FILE *stream) {
-    int loop;      /* An integer that will be used for scanning the input array. */
-    char *result;           /* A pointer to be used when calling fgets method. The pointer will hold the return value. */
+unsigned int readLine(char *buffer, unsigned int size, FILE *stream) {
+    int i;          /* An integer that will be used for scanning the input array. */
+    char *result;   /* A pointer to be used when calling fgets method. The pointer will hold the return value. */
     
     /* Read from stdin into input array. */
     result = fgets(buffer, size, stream);
@@ -41,18 +43,18 @@ int readLine(char *buffer, unsigned int size, FILE *stream) {
         if(ferror(stdin) != 0) {
             /* An error occured. */
             
-            /* Return -1 to indicate error. */
-            return -1;
+            /* Force an error. */
+            CHECK(-1);
         }
     }
     
     /* Remove newline character from the input buffer. Start from next last character since last is '\0'. */
-    for(loop = size-2; loop >= 0; loop--) {
-        if(buffer[loop] == '\n') {
+    for(i = size-2; i >= 0; i--) {
+        if(buffer[i] == '\n') {
             /* The value of the character in position i in the input array is an newline character. */
             
             /* Remove the '\n' charcter by replacing it with '\0'. */
-            buffer[loop] = '\0';
+            buffer[i] = '\0';
             
             /* Since there can only exist one newline character, the loop can be stopped. Exit with success status. */
             return 0;
@@ -81,7 +83,7 @@ void executeChild(char *args[], unsigned int mode) {
             perror("\nCommand failed");
             
             /* Exit with failure status. */
-            exit(EXIT_VALUE_ERROR);
+            exit(errno);
         }
     } else {
         /* Parent area. */
@@ -92,9 +94,9 @@ void executeChild(char *args[], unsigned int mode) {
             int status; /* Integer to be used for checking child status. */
             
             /* Print info to user. */
-            printLine("Foreground: executing '%s', with pid '%i'", args[0], pid);
+            printf("Foreground: executing '%s', with pid '%i'\n", args[0], pid);
         
-        wait: /* TODO: fix this ugly hack later. */
+        wait: /* A label to be used when waitpid encounters the EINTR error, which basically means 'try again'. */
             
             /* Block until the child changes status. */
             pid = waitpid(pid, &status, 0);
@@ -156,7 +158,7 @@ void executeChild(char *args[], unsigned int mode) {
             /* Tell user that the command is being executed. */
             printLine("Background: executing '%s', with pid '%i'", args[0], pid);
             
-            /* Do nothing more since the status changes of chils will be handles externally. */
+            /* Do nothing more since the status changes of childs will be handles externally. */
         } else {
             /* Uknown mode passed to function. */
             
@@ -167,8 +169,8 @@ void executeChild(char *args[], unsigned int mode) {
 }
 
 void explode(char *args[], const unsigned int size, char *command) {
-    unsigned int loop;              /* Used in the for-loop. */
-    const char *separator = " ";    /* The separator to be used when calling strtok. */
+    unsigned int i;              /* Used in the for-loop. */
+    const char *separator = " "; /* The separator to be used when calling strtok. */
     
     if(size < 2) {
         /* The size of the args array is not allowed to be less than 2. */
@@ -194,12 +196,12 @@ void explode(char *args[], const unsigned int size, char *command) {
     }
     
     /* Perform a loop until no more whitespaces are found. Only read size-1 number of arguments. */
-    for(loop = 1; loop < size-1; loop++) {
+    for(i = 1; i < size-1; i++) {
         
         /* Read the next chunk of chars separated by a whitespace into the next element of the array. */
-        args[loop] = strtok(NULL, separator);
+        args[i] = strtok(NULL, separator);
         
-        if(args[loop] == NULL) {
+        if(args[i] == NULL) {
             /* There are no more whitespaces. */
             
             /* The current element of the array is already set to NULL, so just stop the loop. */
@@ -208,26 +210,46 @@ void explode(char *args[], const unsigned int size, char *command) {
     }
 }
 
-int isBackgroundRequested(char **args, unsigned int size, unsigned int mode) {
-    int i = 0;
+unsigned int isBackgroundRequested(char **args, unsigned int size, unsigned int mode) {
+    unsigned int i;     /* Used in the for-loop. */
     
+    /* Loop through args to find '&' character. */
     for(i = 0; i < size; i++) {
+        
+        /* Check if end of args is found. */
         if(args[i] == '\0') {
+            /* char '\0' encountered, which means end of args. */
+            
             if(*args[i-1] == BACKGROUND_CHAR) {
+                /* The char before the '\0' char is the '&', which means the command was ended with the background char. */
+                
                 if(mode == BACKGROUND_REMOVE_CHAR) {
+                    /* The char '&' should be removed. */
+                    
+                    /* Remove it by replacing the char with '/0'. */
                     args[i-1] = '\0';
                 } else if(mode == BACKGROUND_KEEP_CHAR) {
+                    /* The char should not be removed. */
                     
+                    /* Do nothing. */
                 } else {
+                    /* Unknown mode sent to function. */
+                    
+                    /* Force an error. */
                     CHECK(-1);
                 }
                 
+                /* The args parameter is ended with an '&' char, return 1 to indicate this. */
                 return 1;
             } else {
+                /* The last char is not an '&' char, and the command was therefore not ended by '&'. */
+
+                /* return 0 to indicate this. */
                 return 0;
             }
         }
     }
     
+    /* The '&' char is not present in the command. */
     return 0;
 }
