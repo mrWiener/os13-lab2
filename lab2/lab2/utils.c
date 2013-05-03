@@ -68,13 +68,38 @@ unsigned int readLine(char *buffer, unsigned int size, FILE *stream) {
 
 void executeChild(char *args[], unsigned int mode) {
     pid_t pid;      /* Variable to hold child process id. */
+    int fd[2];      /* Array of file descriptors to be used for piping. */
     
     /* Create a child process. */
     CHECK((pid = fork()));
     
+    /* Setup pipe for printenv-child. */
+    CHECK(pipe(fd));
+    
     if(pid == 0) {
         /* Child area. */
+
+        if(mode == CHILD_BACKGROUND) {	
+            /* The child is gonna be executed as a background process. No output or readig can be done by this child. */
+            
+            /* Duplicate STANDARD_OUTPUT to child output pipe. When exec prints to STANDARD_OUTPUT it will instead print to child output pipe. */
+            CHECK(dup2(fd[PIPE_OUT], STANDARD_OUTPUT));
+            
+            /* Duplicate STANDARD_ERROR to child output pipe. When exec prints to STANDARD_ERROR it will instead print to child output pipe. */
+            CHECK(dup2(fd[PIPE_OUT], STANDARD_ERROR));
+            
+            /* Duplicate STANDARD_INPUT to child input pipe. When exec reads from STANDARD_INPUT it will instead read from child input pipe. */
+            CHECK(dup2(fd[PIPE_IN], STANDARD_INPUT));
+        } else if(mode == CHILD_FOREGROUND) {
+            /* The child is gonna be executed as a foreground process. Do not redirect any output or input. */
+            
+            /* Close output pipe. */
+            CHECK(close(fd[PIPE_OUT]));
         
+            /* Close input pipe. */
+            CHECK(close(fd[PIPE_IN]));
+        }
+
         /* Execute program specified as the first string in the arguments array */
         if(execvp(args[0], args) != 0) {
             /* The execution failed. */
@@ -87,6 +112,12 @@ void executeChild(char *args[], unsigned int mode) {
         }
     } else {
         /* Parent area. */
+        
+        /* Close output pipe. */
+        CHECK(close(fd[PIPE_OUT]));
+        
+        /* Close input pipe. */
+        CHECK(close(fd[PIPE_IN]));
         
         if(mode == CHILD_FOREGROUND) {
             /* Child is executing in foreground. */

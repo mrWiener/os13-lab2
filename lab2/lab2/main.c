@@ -10,13 +10,6 @@
 
 /* Include dependencies. */
 
-#include <stdio.h>      /* Needed for read and print functions. */
-#include <stdlib.h>     /* Needed for exit function. */
-#include <string.h>     /* Needed for string manipulations functions. */
-#include <sys/time.h>   /* Needed for time functions. */
-#include <unistd.h>     /* Needed for the chdir function. */
-#include <errno.h>      /* Needed for error handling. */
-
 #include "utils.h"      /* Needed for helper functions and macros. */
 #include "commands.h"   /* Needed for handling built in commands. */
 

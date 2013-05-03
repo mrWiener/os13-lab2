@@ -18,6 +18,8 @@
 #include <string.h>     /* Needed for string manipulations functions. */
 #include <stdio.h>      /* Needed for print functions. */
 #include <errno.h>      /* Needed for error handling. */
+#include <sys/types.h>	/* Needed for process handling. */
+#include <sys/wait.h>	/* Needed for wait process handling. */
 
 #define NEWLINE_CHAR            '\n'    /* Newline character. */
 
@@ -33,6 +35,13 @@
 
 #define BACKGROUND_REMOVE_CHAR  1       /* Tells isBackgroundRequested function to remove BACKGROUND_CHAR from args list. */
 #define BACKGROUND_KEEP_CHAR    2       /* Tells isBackgroundRequested function to keep BACKGROUND_CHAR in args list. */
+
+#define STANDARD_INPUT          0       /* The standard input file descriptor. */
+#define STANDARD_OUTPUT         1       /* The standard output file descriptor. */
+#define STANDARD_ERROR          2       /* The standard error file descritpor. */
+
+#define PIPE_IN                 0       /* The read side of the pipe file descriptor. */
+#define PIPE_OUT                1       /* The print side of the pipe file descriptor. */
 
 /*
  * Macro to print better error messages and exit the process on error.
