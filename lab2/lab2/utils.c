@@ -113,6 +113,11 @@ void executeChild(char *args[], unsigned int mode) {
     } else {
         /* Parent area. */
         
+        /* If child is executed in background mode, the parent should ignore the output and input.
+         * If the child is executed in foreground mode, the child process will handle the output and input.
+         * So close both file descriptors.
+         */
+        
         /* Close output pipe. */
         CHECK(close(fd[PIPE_OUT]));
         
