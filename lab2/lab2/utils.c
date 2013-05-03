@@ -289,3 +289,65 @@ unsigned int isBackgroundRequested(char **args, unsigned int size, unsigned int 
     /* The '&' char is not present in the command. */
     return 0;
 }
+
+void waitProcesses(char *text) {
+    int status; /* Variable to hold child termination status. */
+    pid_t pid;  /* Variable to hold the terminated child process id. */
+
+    /* Keep checking if any childs have terminated until waitpid reports that no child processes have a status to report. */
+    while((pid = waitpid(-1, &status, WNOHANG)) != 0) {
+        /* A child process have changed status. */
+
+        if(pid == -1) {
+            /* An error occured. */
+            
+            /* Check the error. */
+            if(errno == ECHILD) {
+                /* No child processes active. */
+                
+                /* Break the loop because no more waiting needs to be done. */
+                break;
+            } else {
+                /* Unhandled error. */
+                
+                /* Force program exit. */
+                CHECK(-1);
+            }
+        } else if(pid != 0) {
+            /* A process have reported a status change. */
+            
+            /* Check termination status. */
+            if(WIFEXITED(status)) {
+                /* Child process did terminate by calling exit. */
+                
+                /* Check the exit value of the status. */
+                int exit_value = WEXITSTATUS(status);
+                
+                if(exit_value == 0) {
+                    /* The process exited normally. */
+                    
+                    /* Let user know. */
+                    printLine("%s: process '%i' terminated normally.", text, pid);
+                } else {
+                    /* Process exited with error. */
+                    
+                    /* Let user know. */
+                    printLine("%s: process '%i' terminated with error '%i'", text, pid, exit_value);
+                }
+            } else if(WIFSIGNALED(status)) {
+                /* Process terminated due to receipt of a signal. */
+                
+                /* Retrieve the signal value. */
+                int signal_value = WTERMSIG(status);
+                
+                /* Let user know the signal. */
+                printLine("%s: process '%i' killed by signal '%i'", text, pid, signal_value);
+            } else {
+                /* Process terminated in an unknown way. This should not happen. */
+                
+                /* Force error. */
+                CHECK(-1);
+            }
+        }
+    }
+}

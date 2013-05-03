@@ -74,7 +74,7 @@ unsigned int readLine(char *buffer, unsigned int size, FILE *stream);
  * CHILD_FOREGROUND or CHILD_BACKGROUND. A foreground process will block until terminated,
  * and additional execution info will be printed.
  *
- * Will terminated program with value EXIT_VALUE_ERROR on fatal errors.
+ * Will terminate program with value EXIT_VALUE_ERROR on fatal errors.
  */
 void executeChild(char *args[], unsigned int mode);
 
@@ -86,7 +86,7 @@ void executeChild(char *args[], unsigned int mode);
  * array must be the max number of arguments to be read + 1. This is specified with the _size_ parameter.
  * If size is less than 2 the function will treat this as a fatal error.
  *
- * Will terminated program with value EXIT_VALUE_ERROR on fatal errors.
+ * Will terminate program with value EXIT_VALUE_ERROR on fatal errors.
  */
 void explode(char *args[], const unsigned int size, char *command);
 
@@ -96,8 +96,13 @@ void explode(char *args[], const unsigned int size, char *command);
  * should be removed from _args_ if found. The _mode_ parameter can either be
  * BACKGROUND_REMOVE_CHAR or BACKGROUND_KEEP_CHAR.
  *
- * Will terminated program with value EXIT_VALUE_ERROR on fatal errors.
+ * Will terminate program with value EXIT_VALUE_ERROR on fatal errors.
  */
 unsigned int isBackgroundRequested(char **args, unsigned int size, unsigned int mode);
+
+/*
+ * TODO:
+ */
+void waitProcesses(char *text);
 
 #endif

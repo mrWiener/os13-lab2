@@ -10,6 +10,8 @@
 
 /* Include dependencies. */
 
+#include <signal.h>     /* Needed for handling signals. */
+
 #include "utils.h"      /* Needed for helper functions and macros. */
 #include "commands.h"   /* Needed for handling built in commands. */
 
@@ -99,6 +101,18 @@ int readAndExecute() {
     return readStatus;
 }
 
+
+/* 
+ * TODO:
+ */
+void signal_handler(int signal) {
+    printf("signal %i", signal);
+
+    if(signal == SIGINT) {
+        waitProcesses("SIGINT");
+    }
+ }
+
 /*
  * Program main entry point.
  *
@@ -110,8 +124,9 @@ int readAndExecute() {
  * Will terminated program with value EXIT_VALUE_ERROR on fatal errors.
  */
 int main(int argc, const char * argv[]) {
-    int status; /* Variable to hold child termination status. */
-    pid_t pid;  /* Variable to hold the terminated child process id. */
+    if(signal(SIGINT, signal_handler) == SIG_ERR) {
+        CHECK(-1);
+    }
     
     /* Prompt the user for input. */
     printf(PROMPT_TEXT);
@@ -123,60 +138,8 @@ int main(int argc, const char * argv[]) {
         if(readAndExecute() == 0) {
             /* Read and executed command successfully. */
             
-            /* Check if any childs have terminated. */
-            pid = waitpid(-1, &status, WNOHANG);
-            
-            if(pid == -1) {
-                /* An error occured. */
-                
-                /* Check the error. */
-                if(errno == ECHILD) {
-                    /* No child processes active. */
-                    
-                    /* That's okay. Keep waiting for processes. */
-                } else {
-                    /* Unhandled error. */
-                    
-                    /* Force program exit. */
-                    CHECK(-1);
-                }
-            } else if(pid != 0) {
-                /* A process have reported a status change. */
-                
-                /* Check termination status. */
-                if(WIFEXITED(status)) {
-                    /* Child process did terminate by calling exit. */
-                    
-                    /* Check the exit value of the status. */
-                    int exit_value = WEXITSTATUS(status);
-                    
-                    if(exit_value == 0) {
-                        /* The process exited normally. */
-                        
-                        /* Let user know. */
-                        printLine("Background: process '%i' terminated normally.", pid);
-                    } else {
-                        /* Process exited with error. */
-                        
-                        /* Let user know. */
-                        printLine("Background: process '%i' terminated with error '%i'", pid, exit_value);
-                    }
-                } else if(WIFSIGNALED(status)) {
-                    /* Process terminated due to receipt of a signal. */
-                    
-                    /* Retrieve the signal value. */
-                    int signal_value = WTERMSIG(status);
-                    
-                    /* Let user know the signal. */
-                    printLine("Background: process '%i' killed by signal '%i'", pid, signal_value);
-                } else {
-                    /* Process terminated in an unknown way. This should not happen. */
-                    
-                    /* Force error. */
-                    CHECK(-1);
-                }
-            }
-            
+            waitProcesses("Background");
+
             /* Prompt the user for input. */
             printf(PROMPT_TEXT);
         }

@@ -43,7 +43,7 @@ unsigned int executeCommand(char **args);
  * which should be the new working directory. If the path does not exist, the directory specified in HOME environment
  * variable will be changed to.
  *
- * Will terminated program with value EXIT_VALUE_ERROR on fatal errors.
+ * Will terminate program with value EXIT_VALUE_ERROR on fatal errors.
  */
 void command_cd(char **args);
 
