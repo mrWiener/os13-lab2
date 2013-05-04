@@ -1,8 +1,16 @@
 /*
  *  main.h
  *  os13-lab2
- *
- *  TODO: Write about the program.
+ *  
+ *  This program is a simple shell. It will parse commands and try to execute them in foreground or background processes.
+ *  There are two built-in commands, exit and cd. The cd command should be used as so: cd <path> where path is the path
+ *  to which the working directory should be set. If the path is invalid then the path is set to HOME path in environment variable.
+ *  The exit command exits the shell. To run a command in background a '&' character should be present last in the command string.
+ *  Comands can be of max length COMMAND_MAX_LENGTH and the number of arguments to a command can max be ARGUMENTS_MAX_SIZE.
+ *  The shell will terminate with status EXIT_VALUE_ERROR on fatal errors, else the user will be prompted with information
+ *  about less fatal errors. If Ctrl-C (SIGINT) is sent to the shell, all of its child processes will be terminated.
+ *	The shell program will terminate all child processes before exiting, except on fatal errors.
+ * 
  *
  *  Created by Lucas Wiener & Mathias Lindblom.
  *  Copyright (c) 2013 os13. All rights reserved.
@@ -34,9 +42,23 @@
 int readAndExecute();
 
 /* 
- * TODO:
+ * Signal handler function to be called when a registered signa is received by the program.
+ * This function now handles SIGTERM and SIGINT signals. When SIGINT is received, the function
+ * calls waitProcesses and then ignores the signal. When SIGTERM is received, the function
+ * waits for child processes to terminate gracefully for WAIT_CHILD_TERMINATION_LIMIT number of seconds.
+ * If the limit is exceeded, then a SIGKILL signal is sent to all processes within the process group,
+ * which kills the program and all of its processes.
+ * 
+ * Will terminate program on fatal errors.
  */
-void signal_handler(int signal);
+void signalHandler(int sig);
+
+/*
+ * Registers program to handle signal _sig_ by the function signalHandler.
+ * 
+ * Will terminate program with value EXIT_VALUE_ERROR on fatal errors.
+ */
+void registerSignalToHandle(int sig);
 
 /*
  * Program main entry point.
@@ -45,7 +67,7 @@ void signal_handler(int signal);
  * waitpid will be polled without blocking to check for status changes of background processes. Information
  * will be printed if an background process have terminated. Lastly, and prompt defined by PROMPT_TEXT will be printed.
  * Only an error or exit command will break the loop.
- *
- * Will terminate program with value EXIT_VALUE_ERROR on fatal errors.
+ * 
+ * Will terminated program with value EXIT_VALUE_ERROR on fatal errors.
  */
 int main(int argc, const char * argv[]);

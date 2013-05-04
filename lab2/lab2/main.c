@@ -79,19 +79,19 @@ int readAndExecute() {
         }
     }
     
-    /* Retrun the returnStatus. */
+    /* Return the returnStatus. */
     return readStatus;
 }
 
-void signal_handler(int signal) {
+void signal_handler(int sig) {
 
     /* Check which signal was sent. */
-    if(signal == SIGINT) {
+    if(sig == SIGINT) {
         /* Interrupt program signal was sent. Probably because of Ctrl-C was pressed in shell. */
 
         /* The child processes of the shell have also received this signal, see if there are status reports. Do not exit the main shell program. */
         waitProcesses("SIGINT");
-    } else if(signal == SIGTERM) {
+    } else if(sig == SIGTERM) {
         /* Termination signal was sent to program. */
 
         struct timeval startTime;      /* Structure to hold time info about the time when started counting. */
@@ -128,15 +128,23 @@ void signal_handler(int signal) {
     }
  }
 
-int main(int argc, const char * argv[]) {
-    if(signal(SIGINT, signal_handler) == SIG_ERR) {
-        CHECK(-1);
-    }
+void registerSignalToHandle(int sig) {
 
-    if(signal(SIGTERM, signal_handler) == SIG_ERR) {
+    /* Register signal_handler to handle the signal paramter. */
+    if(signal(sig, signal_handler) == SIG_ERR) {
+        /* Failed to register signal handler. */
+
+        /* Force an error. */
         CHECK(-1);
     }
-    
+}
+
+int main(int argc, const char * argv[]) {
+
+    /* Register program to handle SIGINT and SIGTERM signals. */
+    registerSignalToHandle(SIGINT);
+    registerSignalToHandle(SIGTERM);
+
     /* Prompt the user for input. */
     printf(PROMPT_TEXT);
     
