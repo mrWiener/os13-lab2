@@ -106,12 +106,18 @@ void explode(char *args[], const unsigned int size, char *command);
 unsigned int isBackgroundRequested(char **args, unsigned int size, unsigned int mode);
 
 /*
- * TODO:
+ * waitProcesses will read status changes of all processes until no more processes wishes to
+ * reports status changes, or if there are no child processes present.
+ * The function will return 0 if there are no more status changes to be reported, and 1 if there
+ * are no child processes. The function will print information including the paramter string _text_
+ * on child processes status changes.
+ *
+ * Will terminate program with value EXIT_VALUE_ERROR on fatal errors.
  */
 unsigned int waitProcesses(char *text);
 
 /*
- * TODO:
+ * The function will send a SIGTERM signal to the whole process group.
  */
 void killProcesses();
 
