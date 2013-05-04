@@ -20,6 +20,8 @@
 
 #include <signal.h>     /* Needed for handling signals. */
 
+#define COMMAND_MAX_LENGTH	10
+
 #include "utils.h"      /* Needed for helper functions and macros. */
 #include "commands.h"   /* Needed for handling built in commands. */
 
@@ -35,11 +37,9 @@
  * the function will execute the command by calling executeChild function. If an external program is executed,
  * the function will print the number of milliseconds the process was alive.
  *
- * The function returns 0 on success, 1 if too many characters was entered and -1 on error.
- *
  * Will terminated program with value EXIT_VALUE_ERROR on fatal errors.
  */
-int readAndExecute();
+void readAndExecute();
 
 /* 
  * Signal handler function to be called when a registered signa is received by the program.

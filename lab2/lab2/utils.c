@@ -30,6 +30,7 @@ void printLine(const char *string, ...) {
 }
 
 unsigned int readLine(char *buffer, unsigned int size, FILE *stream) {
+    int c;          /* A temporary character to be used when clearing the stdin stream. */
     int i;          /* An integer that will be used for scanning the input array. */
     char *result;   /* A pointer to be used when calling fgets method. The pointer will hold the return value. */
     
@@ -61,8 +62,27 @@ unsigned int readLine(char *buffer, unsigned int size, FILE *stream) {
         }
     }
     
-    /* If the program came this far, no newline was found in the line. This means the limit was hit, and a whole line
-     * was not read. return 1 to indicate this situation. */
+   /* 
+    * If the program came this far, no newline was found in the line. This means the limit was hit, and a whole line
+    * was not read. This means that there are unread data still on stdin, which will be read next time readLine is called.
+    * This is an unwanted behavior, so the program now needs to clear the stdin.
+    */
+
+    /* Keep reading a character from stdin until a newline is read or end of file is retrieved. */
+    while((c = fgetc(stdin)) != '\n' && c != EOF);
+
+    if(c == EOF) {
+        /* Either end of file was encountered, or an error encountered. */
+
+        if(ferror(stdin) != 0) {
+            /* An error occured. */
+            
+            /* Force an error. */
+            CHECK_SAFE(-1);
+        }
+    }
+    
+    /* Return 1 to indicate this situation. */
     return 1;
 }
 

@@ -64,7 +64,8 @@ void printLine(const char *string, ...);
 /*
  * readLine reads _size_ -1 number of characters from the given stream _stream_. The newline character
  * will be removed and replaced with a '\0' char, so _buffer_ will at maximum contain _size_ - 2 non-'\0' chars.
- * readLine returns 0 on success. If no newline char is present at the end of the read buffer, the function will return 1.
+ * readLine returns 0 on success. If no newline char is present at the end of the read buffer, the function will return 1
+ * and clear the stdin stream.
  *
  * Will terminated program with value EXIT_VALUE_ERROR on fatal errors.
  */

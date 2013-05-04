@@ -10,12 +10,12 @@
 
 #include "main.h"
 
-int readAndExecute() {
+void readAndExecute() {
     int readStatus;                     /* An variable to hold the return value of the readStatus function. */
-    char input[COMMAND_MAX_LENGH+2];    /* Array to be used for reading, with 2 extra char for newline and the '\0' char. */
+    char input[COMMAND_MAX_LENGTH+2];    /* Array to be used for reading, with 2 extra char for newline and the '\0' char. */
     
     /* Read a line of max COMMAND_MAX_LENGTH command chars from stdin. */
-    readStatus = readLine(input, COMMAND_MAX_LENGH+2, stdin);
+    readStatus = readLine(input, COMMAND_MAX_LENGTH+2, stdin);
     
     /* Check the read line status */
     if(readStatus == 0) {
@@ -46,7 +46,7 @@ int readAndExecute() {
                 /* Get the current time for command executions statistics. */
                 CHECK_SAFE(gettimeofday(&postExecute, NULL));
                 
-                /* Return the elapsed time. */
+                /* Calculate the elapsed time. */
                 elapsed = postExecute.tv_usec - preExecute.tv_usec;
                 
                 /* Print the statistics. */
@@ -62,7 +62,7 @@ int readAndExecute() {
         /* Too many characters were read. */
         
         /* Tell user to enter less number of characters. */
-        printLine("The character limit of a command is %i", COMMAND_MAX_LENGH);
+        printLine("The character limit of a command is %i", COMMAND_MAX_LENGTH);
     } else if(readStatus == -1) {
         /* An error have occured. */
         
@@ -78,9 +78,6 @@ int readAndExecute() {
             CHECK_SAFE(-1);
         }
     }
-    
-    /* Return the returnStatus. */
-    return readStatus;
 }
 
 void signalHandler(int sig) {
@@ -159,14 +156,13 @@ int main(int argc, const char * argv[]) {
     while (1) {
         
         /* Read and execute commands. */
-        if(readAndExecute() == 0) {
-            /* Read and executed command successfully. */
+        readAndExecute();
             
-            waitProcesses("Background");
+        /* See if any background processes have changed status. */
+        waitProcesses("Background");
 
-            /* Prompt the user for input. */
-            printf(PROMPT_TEXT);
-        }
+        /* Prompt the user for input. */
+        printf(PROMPT_TEXT);
     }
     
     /* Kill all child processes before exiting. */

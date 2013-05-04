@@ -21,7 +21,7 @@
 
 /* Define COMMAND_MAX_LENGTH if not already defined. */
 #ifndef COMMAND_MAX_LENGTH
-    #define COMMAND_MAX_LENGH       70      /* Max number of characters an user specified command can be. */
+    #define COMMAND_MAX_LENGTH       70      /* Max number of characters an user specified command can be. */
 #endif
 
 /* Define ARGUMENTS_MAX_LENGTH if not already defined. */
