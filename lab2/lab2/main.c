@@ -83,7 +83,7 @@ int readAndExecute() {
     return readStatus;
 }
 
-void signal_handler(int sig) {
+void signalHandler(int sig) {
 
     /* Check which signal was sent. */
     if(sig == SIGINT) {
@@ -129,14 +129,21 @@ void signal_handler(int sig) {
  }
 
 void registerSignalToHandle(int sig) {
+    struct sigaction action; /* The new action to be stored in the signal handling table for the specified signal sig. */
 
-    /* Register signal_handler to handle the signal paramter. */
-    if(signal(sig, signal_handler) == SIG_ERR) {
-        /* Failed to register signal handler. */
+    /* Setup the new sigaction structure. */
 
-        /* Force an error. */
-        CHECK(-1);
-    }
+    /* Set the signalHandler to be the handler function. */
+    action.sa_handler = signalHandler;
+
+    /* Create empty set for the sa_mask. The sa_mask is for setting signals that should be ignored when handler is running. */
+    sigemptyset(&action.sa_mask);
+    
+    /* Set flags to 0, the program got no special needs. */
+    action.sa_flags = 0;
+
+    /* Register the new action to handle the signal sig. */
+    CHECK(sigaction(sig, &action, NULL));
 }
 
 int main(int argc, const char * argv[]) {
