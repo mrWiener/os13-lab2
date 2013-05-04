@@ -59,7 +59,7 @@ void command_cd(char **args) {
                 /* No such file or directory. */
                 
                 /* Now instead change directory to path given by env HOME. */
-                CHECK(chdir(getenv(ENV_HOME)));
+                CHECK_SAFE(chdir(getenv(ENV_HOME)));
             
                 /* Tell user about this. */
                 printLine("No such directory '%s'", args[1]);
@@ -70,7 +70,7 @@ void command_cd(char **args) {
                 /* An error which is not handled occured. */
                 
                 /* Force an error. */
-                CHECK(-1);
+                CHECK_SAFE(-1);
             }
         } else {
             /* The call was successful. */
@@ -86,6 +86,9 @@ void command_cd(char **args) {
 
 void command_exit() {
     
-    /* Just terminate the program with EXIT_VALUE_SUCCESS. */
+    /* Kill all child processes before exiting. */
+    killProcesses();
+
+    /* Terminate the program with EXIT_VALUE_SUCCESS. */
     exit(EXIT_SUCCESS);
 }

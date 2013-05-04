@@ -50,6 +50,11 @@
 #define CHECK(r) if(r < 0) {perror(""); fprintf(stderr, "file: %s line: %d.\n", __FILE__, __LINE__); exit(EXIT_VALUE_ERROR);}
 
 /*
+ * Just like the CHECK macro above, but kills all child processes before exit.
+ */
+#define CHECK_SAFE(r) if(r < 0) {perror(""); fprintf(stderr, "file: %s line: %d.\nKilling processes..\n", __FILE__, __LINE__); killProcesses(); exit(EXIT_VALUE_ERROR); }
+
+/*
  * printLine works just like printf, but it prints a NEWLINE_CHAR before and after the text.
  *
  * Will terminated program with value EXIT_VALUE_ERROR on fatal errors.
@@ -103,6 +108,11 @@ unsigned int isBackgroundRequested(char **args, unsigned int size, unsigned int 
 /*
  * TODO:
  */
-void waitProcesses(char *text);
+unsigned int waitProcesses(char *text);
+
+/*
+ * TODO:
+ */
+void killProcesses();
 
 #endif

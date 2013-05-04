@@ -2,33 +2,14 @@
  *  main.c
  *  os13-lab2
  *
- *  TODO: Write about the program.
+ *  See main.h for documentation.
  *
  *  Created by Lucas Wiener & Mathias Lindblom.
  *  Copyright (c) 2013 os13. All rights reserved.
  */
 
-/* Include dependencies. */
+#include "main.h"
 
-#include <signal.h>     /* Needed for handling signals. */
-
-#include "utils.h"      /* Needed for helper functions and macros. */
-#include "commands.h"   /* Needed for handling built in commands. */
-
-/* Define constants to be used in the program. */
-
-#define PROMPT_TEXT     "> "    /* The text to display when waiting for user command. */
-
-/*
- * This function reads a command from stdin of length COMMAND_MAX_LENGTH (newline and '\0' excluded).
- * Will try to execute the command by calling the function executeCommand (built-in commands), and if it fails
- * the function will execute the command by calling executeChild function. If an external program is executed,
- * the function will print the number of milliseconds the process was alive.
- *
- * The function returns 0 on success, 1 if too many characters was entered and -1 on error.
- *
- * Will terminated program with value EXIT_VALUE_ERROR on fatal errors.
- */
 int readAndExecute() {
     int readStatus;                     /* An variable to hold the return value of the readStatus function. */
     char input[COMMAND_MAX_LENGH+2];    /* Array to be used for reading, with 2 extra char for newline and the '\0' char. */
@@ -57,13 +38,13 @@ int readAndExecute() {
                 /* Command should be executed in foreground. */
                 
                 /* Get the current time for command execution statistics. */
-                CHECK(gettimeofday(&preExecute, NULL));
+                CHECK_SAFE(gettimeofday(&preExecute, NULL));
                 
                 /* Execute the program with the executeChild function with foreground mode. */
                 executeChild(args, CHILD_FOREGROUND);
                 
                 /* Get the current time for command executions statistics. */
-                CHECK(gettimeofday(&postExecute, NULL));
+                CHECK_SAFE(gettimeofday(&postExecute, NULL));
                 
                 /* Return the elapsed time. */
                 elapsed = postExecute.tv_usec - preExecute.tv_usec;
@@ -94,37 +75,60 @@ int readAndExecute() {
             /* Unhandled error. */
         
             /* Force an error. */
-            CHECK(-1);
+            CHECK_SAFE(-1);
         }
     }
     
+    /* Retrun the returnStatus. */
     return readStatus;
 }
 
-
-/* 
- * TODO:
- */
 void signal_handler(int signal) {
-    printf("signal %i", signal);
 
+    /* Check which signal was sent. */
     if(signal == SIGINT) {
+        /* Interrupt program signal was sent. Probably because of Ctrl-C was pressed in shell. */
+
+        /* The child processes of the shell have also received this signal, see if there are status reports. Do not exit the main shell program. */
         waitProcesses("SIGINT");
+    } else if(signal == SIGTERM) {
+        /* Termination signal was sent to program. */
+
+        struct timeval startTime;      /* Structure to hold time info about the time when started counting. */
+        struct timeval currentTime;    /* Structure to hold time info about the current time. */
+        unsigned int elapsed = 0;      /* The number of seconds elapsed. */
+
+        /* Get the current time. */
+        CHECK(gettimeofday(&startTime, NULL));
+
+        /* Loop until waitProcesses indicate that there are no active child processes. */
+        while(waitProcesses("Exiting") != 1) {
+
+            /* Get the current time. */
+            CHECK_SAFE(gettimeofday(&currentTime, NULL));
+
+            /* Calculate the number of seconds the program have been waiting for child processes to exit gracefully. */
+            elapsed = currentTime.tv_sec - startTime.tv_sec;
+
+            if(elapsed >= WAIT_CHILD_TERMINATION_LIMIT) {
+                /* The time have exceeded the limit, time to get dirty with the child processes. */
+
+                /* 
+                 * Send SIGKILL signal to all processes in the same process group of parent (including parent). 
+                 * This will force all processes to terminate, since SIGKILL cannot be ignored by processes.
+                 */
+                CHECK(kill(0, SIGKILL));
+            }
+        }
     }
  }
 
-/*
- * Program main entry point.
- *
- * A infinite loop will run which calls readAndExecute functions. If a command have been executed,
- * waitpid will be polled without blocking to check for status changes of background processes. Information
- * will be printed if an background process have terminated. Lastly, and prompt defined by PROMPT_TEXT will be printed.
- * Only an error or exit command will break the loop.
- *
- * Will terminated program with value EXIT_VALUE_ERROR on fatal errors.
- */
 int main(int argc, const char * argv[]) {
     if(signal(SIGINT, signal_handler) == SIG_ERR) {
+        CHECK(-1);
+    }
+
+    if(signal(SIGTERM, signal_handler) == SIG_ERR) {
         CHECK(-1);
     }
     
@@ -145,6 +149,9 @@ int main(int argc, const char * argv[]) {
         }
     }
     
+    /* Kill all child processes before exiting. */
+    killProcesses();
+
     /* Terminate process normally. */
     return EXIT_VALUE_SUCCESS;
 }

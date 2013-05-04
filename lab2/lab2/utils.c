@@ -17,13 +17,13 @@ void printLine(const char *string, ...) {
     va_start(ap, string);
     
     /* Print the first newline. */
-    CHECK(putchar(NEWLINE_CHAR));
+    CHECK_SAFE(putchar(NEWLINE_CHAR));
     
     /* Call print the string with vprintf. */
-    CHECK(vprintf(string, ap));
+    CHECK_SAFE(vprintf(string, ap));
     
     /* Print the last newline. */
-    CHECK(putchar(NEWLINE_CHAR));
+    CHECK_SAFE(putchar(NEWLINE_CHAR));
     
     /* Cleanup the va_list. */
     va_end(ap);
@@ -44,7 +44,7 @@ unsigned int readLine(char *buffer, unsigned int size, FILE *stream) {
             /* An error occured. */
             
             /* Force an error. */
-            CHECK(-1);
+            CHECK_SAFE(-1);
         }
     }
     
@@ -55,7 +55,7 @@ unsigned int readLine(char *buffer, unsigned int size, FILE *stream) {
             
             /* Remove the '\n' charcter by replacing it with '\0'. */
             buffer[i] = '\0';
-            
+
             /* Since there can only exist one newline character, the loop can be stopped. Exit with success status. */
             return 0;
         }
@@ -71,10 +71,10 @@ void executeChild(char *args[], unsigned int mode) {
     int fd[2];      /* Array of file descriptors to be used for piping. */
     
     /* Create a child process. */
-    CHECK((pid = fork()));
+    CHECK_SAFE((pid = fork()));
     
     /* Setup pipe for printenv-child. */
-    CHECK(pipe(fd));
+    CHECK_SAFE(pipe(fd));
     
     if(pid == 0) {
         /* Child area. */
@@ -119,10 +119,10 @@ void executeChild(char *args[], unsigned int mode) {
          */
         
         /* Close output pipe. */
-        CHECK(close(fd[PIPE_OUT]));
+        CHECK_SAFE(close(fd[PIPE_OUT]));
         
         /* Close input pipe. */
-        CHECK(close(fd[PIPE_IN]));
+        CHECK_SAFE(close(fd[PIPE_IN]));
         
         if(mode == CHILD_FOREGROUND) {
             /* Child is executing in foreground. */
@@ -150,7 +150,7 @@ void executeChild(char *args[], unsigned int mode) {
                     /* Unhandled error. */
                     
                     /* Force program exit. */
-                    CHECK(-1);
+                    CHECK_SAFE(-1);
                 }
             } else if(pid != 0) {
                 /* The process have reported a status change. */
@@ -185,7 +185,7 @@ void executeChild(char *args[], unsigned int mode) {
                     /* Process terminated in an unknown way. This should not happen. */
                     
                     /* Force error. */
-                    CHECK(-1);
+                    CHECK_SAFE(-1);
                 }
             }
         } else if(mode == CHILD_BACKGROUND){
@@ -199,7 +199,7 @@ void executeChild(char *args[], unsigned int mode) {
             /* Uknown mode passed to function. */
             
             /* Force an error. */
-            CHECK(-1);
+            CHECK_SAFE(-1);
         }
     }
 }
@@ -212,7 +212,7 @@ void explode(char *args[], const unsigned int size, char *command) {
         /* The size of the args array is not allowed to be less than 2. */
         
         /* Force an error. */
-        CHECK(-1);
+        CHECK_SAFE(-1);
     }
     
     /* Read the first chunk of chars separated by whitespace. */
@@ -272,7 +272,7 @@ unsigned int isBackgroundRequested(char **args, unsigned int size, unsigned int 
                     /* Unknown mode sent to function. */
                     
                     /* Force an error. */
-                    CHECK(-1);
+                    CHECK_SAFE(-1);
                 }
                 
                 /* The args parameter is ended with an '&' char, return 1 to indicate this. */
@@ -290,7 +290,7 @@ unsigned int isBackgroundRequested(char **args, unsigned int size, unsigned int 
     return 0;
 }
 
-void waitProcesses(char *text) {
+unsigned int waitProcesses(char *text) {
     int status; /* Variable to hold child termination status. */
     pid_t pid;  /* Variable to hold the terminated child process id. */
 
@@ -305,8 +305,8 @@ void waitProcesses(char *text) {
             if(errno == ECHILD) {
                 /* No child processes active. */
                 
-                /* Break the loop because no more waiting needs to be done. */
-                break;
+                /* Return 1 to indicate that there are no child processes. */
+                return 1;
             } else {
                 /* Unhandled error. */
                 
@@ -350,4 +350,13 @@ void waitProcesses(char *text) {
             }
         }
     }
+
+    /* Return 0 to indicate that there are no processes that want to report status change. */
+    return 0;
+}
+
+void killProcesses() {
+
+    /* Send SIGTERM signal to all processes in the same process group of parent (including parent). */
+    CHECK(kill(0, SIGTERM));
 }

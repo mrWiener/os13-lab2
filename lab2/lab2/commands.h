@@ -48,7 +48,8 @@ unsigned int executeCommand(char **args);
 void command_cd(char **args);
 
 /*
- * This function exits the program by calling exit function with EXIT_VALUE_SUCCESS.
+ * This function exits the program by calling exit function with EXIT_VALUE_SUCCESS. It also makes sure that all child processes are killed
+ * before exiting.
  */
 void command_exit();
 
