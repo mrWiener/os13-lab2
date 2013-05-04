@@ -113,6 +113,8 @@ void signal_handler(int signal) {
             if(elapsed >= WAIT_CHILD_TERMINATION_LIMIT) {
                 /* The time have exceeded the limit, time to get dirty with the child processes. */
 
+                printLine("Forcing child processes to exit...");
+
                 /* 
                  * Send SIGKILL signal to all processes in the same process group of parent (including parent). 
                  * This will force all processes to terminate, since SIGKILL cannot be ignored by processes.
@@ -120,6 +122,9 @@ void signal_handler(int signal) {
                 CHECK(kill(0, SIGKILL));
             }
         }
+
+        /* Exit with success value. */
+        exit(EXIT_VALUE_SUCCESS);
     }
  }
 

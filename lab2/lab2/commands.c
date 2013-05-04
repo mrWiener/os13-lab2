@@ -86,9 +86,6 @@ void command_cd(char **args) {
 
 void command_exit() {
     
-    /* Kill all child processes before exiting. */
+    /* Kill all processes (including parent). */
     killProcesses();
-
-    /* Terminate the program with EXIT_VALUE_SUCCESS. */
-    exit(EXIT_SUCCESS);
 }
