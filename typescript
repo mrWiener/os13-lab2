@@ -1,0 +1,198 @@
+Script started on 2013-05-03T16:12:59 CEST
+mathlin@red-15:~/operativsystem/os13-lab2$ gcc -pedantic -ansi lab2/lab2/* -o she
+ell
+mathlin@red-15:~/operativsystem/os13-lab2$ ./shell
+> cd test
+
+No such directory 'test'
+
+Working directory changed to '/afs/nada.kth.se/home/n/u1s7bv3n'
+> cd operativsystem
+
+Working directory changed to 'operativsystem'
+> cd operativsystem test
+
+Please use the command as such: cd <path>
+> ping google.com
+Foreground: executing 'ping', with pid '23537'
+PING google.com (173.194.32.37) 56(84) bytes of data.
+64 bytes from arn06s02-in-f5.1e100.net (173.194.32.37): icmp_req=1 ttl=51 time=24.0 ms
+64 bytes from arn06s02-in-f5.1e100.net (173.194.32.37): icmp_req=2 ttl=51 time=24.0 ms
+64 bytes from arn06s02-in-f5.1e100.net (173.194.32.37): icmp_req=3 ttl=51 time=24.0 ms
+64 bytes from arn06s02-in-f5.1e100.net (173.194.32.37): icmp_req=4 ttl=51 time=24.0 ms
+64 bytes from arn06s02-in-f5.1e100.net (173.194.32.37): icmp_req=5 ttl=51 time=24.0 ms
+64 bytes from arn06s02-in-f5.1e100.net (173.194.32.37): icmp_req=6 ttl=51 time=24.0 ms
+64 bytes from arn06s02-in-f5.1e100.net (173.194.32.37): icmp_req=7 ttl=51 time=24.0 ms
+64 bytes from arn06s02-in-f5.1e100.net (173.194.32.37): icmp_req=8 ttl=51 time=24.0 ms
+
+64 bytes from arn06s02-in-f5.1e100.net (173.194.32.37): icmp_req=9 ttl=51 time=24.0 ms
+64 bytes from arn06s02-in-f5.1e100.net (173.194.32.37): icmp_req=10 ttl=51 time=24.0 ms
+64 bytes from arn06s02-in-f5.1e100.net (173.194.32.37): icmp_req=11 ttl=51 time=24.0 ms
+^C
+--- google.com ping statistics ---
+11 packets transmitted, 11 received, 0% packet loss, time 10010ms
+rtt min/avg/max/mdev = 24.043/24.056/24.076/0.008 ms
+
+Foreground: process '23537' terminated normally.
+Command 'ping' executed in 56225 milliseconds.
+> ping google.com &
+
+Background: executing 'ping', with pid '23538'
+> ping achtungonline.com &
+
+Background: executing 'ping', with pid '23539'
+> ping hej &
+
+Background: executing 'ping', with pid '23540'
+> ps a
+Foreground: executing 'ps', with pid '23542'
+  PID TTY      STAT   TIME COMMAND
+ 1159 tty4     Ss+    0:00 /sbin/getty -8 38400 tty4
+ 1167 tty5     Ss+    0:00 /sbin/getty -8 38400 tty5
+ 1178 tty2     Ss+    0:00 /sbin/getty -8 38400 tty2
+ 1179 tty3     Ss+    0:00 /sbin/getty -8 38400 tty3
+ 1181 tty6     Ss+    0:00 /sbin/getty -8 38400 tty6
+ 2151 tty1     Ss+    0:00 /sbin/getty -8 38400 tty1
+20932 tty7     Ss+    2:04 /usr/bin/X :0 -auth /var/run/lightdm/root/:0 -noliste
+21915 pts/0    Ss     0:00 bash
+23516 pts/0    S+     0:00 script
+23517 pts/0    S+     0:00 script
+23518 pts/1    Ss     0:00 bash -i
+23536 pts/1    S+     0:00 ./shell
+23538 pts/1    S+     0:00 ping google.com
+23539 pts/1    S+     0:00 ping achtungonline.com
+23540 pts/1    Z+     0:00 [ping] <defunct>
+23542 pts/1    R+     0:00 ps a
+
+Foreground: process '23542' terminated normally.
+Command 'ps' executed in 33914 milliseconds.
+
+Background: process '23540' terminated with error '2'
+> afafafafafafaffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+
+The character limit of a command is 70
+> ping linkedin.com &
+
+Background: executing 'ping', with pid '23543'
+> ps a
+Foreground: executing 'ps', with pid '23544'
+  PID TTY      STAT   TIME COMMAND
+ 1159 tty4     Ss+    0:00 /sbin/getty -8 38400 tty4
+ 1167 tty5     Ss+    0:00 /sbin/getty -8 38400 tty5
+ 1178 tty2     Ss+    0:00 /sbin/getty -8 38400 tty2
+ 1179 tty3     Ss+    0:00 /sbin/getty -8 38400 tty3
+ 1181 tty6     Ss+    0:00 /sbin/getty -8 38400 tty6
+ 2151 tty1     Ss+    0:00 /sbin/getty -8 38400 tty1
+20932 tty7     Ss+    2:04 /usr/bin/X :0 -auth /var/run/lightdm/root/:0 -noliste
+21915 pts/0    Ss     0:00 bash
+23516 pts/0    S+     0:00 script
+23517 pts/0    S+     0:00 script
+23518 pts/1    Ss     0:00 bash -i
+23536 pts/1    S+     0:00 ./shell
+23538 pts/1    S+     0:00 ping google.com
+23539 pts/1    S+     0:00 ping achtungonline.com
+23543 pts/1    S+     0:00 ping linkedin.com
+23544 pts/1    R+     0:00 ps a
+
+Foreground: process '23544' terminated normally.
+Command 'ps' executed in 13522 milliseconds.
+> kill 23538
+Foreground: executing 'kill', with pid '23547'
+
+Foreground: process '23547' terminated normally.
+Command 'kill' executed in 1427 milliseconds.
+> kill 23539 &
+
+Background: executing 'kill', with pid '23548'
+
+Background: process '23538' killed by signal '15'
+> ps a &  
+Foreground: executing 'ps', with pid '23549'
+  PID TTY      STAT   TIME COMMAND
+ 1159 tty4     Ss+    0:00 /sbin/getty -8 38400 tty4
+ 1167 tty5     Ss+    0:00 /sbin/getty -8 38400 tty5
+ 1178 tty2     Ss+    0:00 /sbin/getty -8 38400 tty2
+ 1179 tty3     Ss+    0:00 /sbin/getty -8 38400 tty3
+ 1181 tty6     Ss+    0:00 /sbin/getty -8 38400 tty6
+ 2151 tty1     Ss+    0:00 /sbin/getty -8 38400 tty1
+20932 tty7     Ss+    2:05 /usr/bin/X :0 -auth /var/run/lightdm/root/:0 -noliste
+21915 pts/0    Ss     0:00 bash
+23516 pts/0    S+     0:00 script
+23517 pts/0    R+     0:00 script
+23518 pts/1    Ss     0:00 bash -i
+23536 pts/1    S+     0:00 ./shell
+23539 pts/1    Z+     0:00 [ping] <defunct>
+23543 pts/1    S+     0:00 ping linkedin.com
+23548 pts/1    Z+     0:00 [kill] <defunct>
+23549 pts/1    R+     0:00 ps a
+
+Foreground: process '23549' terminated normally.
+Command 'ps' executed in 14931 milliseconds.
+
+Background: process '23539' killed by signal '15'
+
+Background: process '23548' terminated normally.
+> exit
+
+Exiting: process '23543' killed by signal '15'
+mathlin@red-15:~/operativsystem/os13-lab2$ ps a
+  PID TTY      STAT   TIME COMMAND
+ 1159 tty4     Ss+    0:00 /sbin/getty -8 38400 tty4
+ 1167 tty5     Ss+    0:00 /sbin/getty -8 38400 tty5
+ 1178 tty2     Ss+    0:00 /sbin/getty -8 38400 tty2
+ 1179 tty3     Ss+    0:00 /sbin/getty -8 38400 tty3
+ 1181 tty6     Ss+    0:00 /sbin/getty -8 38400 tty6
+ 2151 tty1     Ss+    0:00 /sbin/getty -8 38400 tty1
+20932 tty7     Ss+    2:05 /usr/bin/X :0 -auth /var/run/lightdm/root/:0 -noliste
+21915 pts/0    Ss     0:00 bash
+23516 pts/0    S+     0:00 script
+23517 pts/0    S+     0:00 script
+23518 pts/1    Ss     0:00 bash -i
+23553 pts/1    R+     0:00 ps a
+mathlin@red-15:~/operativsystem/os13-lab2$ ./shell
+> ping google.com &
+
+Background: executing 'ping', with pid '23555'
+
+> ps -a  a
+Foreground: executing 'ps', with pid '23559'
+  PID TTY      STAT   TIME COMMAND
+ 1159 tty4     Ss+    0:00 /sbin/getty -8 38400 tty4
+ 1167 tty5     Ss+    0:00 /sbin/getty -8 38400 tty5
+ 1178 tty2     Ss+    0:00 /sbin/getty -8 38400 tty2
+ 1179 tty3     Ss+    0:00 /sbin/getty -8 38400 tty3
+ 1181 tty6     Ss+    0:00 /sbin/getty -8 38400 tty6
+ 2151 tty1     Ss+    0:00 /sbin/getty -8 38400 tty1
+20932 tty7     Ss+    2:05 /usr/bin/X :0 -auth /var/run/lightdm/root/:0 -noliste
+21915 pts/0    Ss     0:00 bash
+23516 pts/0    S+     0:00 script
+23517 pts/0    S+     0:00 script
+23518 pts/1    Ss     0:00 bash -i
+23554 pts/1    S+     0:00 ./shell
+23555 pts/1    S+     0:00 ping google.com
+23559 pts/1    R+     0:00 ps a
+
+Foreground: process '23559' terminated normally.
+Command 'ps' executed in 13256 milliseconds.
+> ^CInterrupted system call
+file: lab2/lab2/utils.c line: 48.
+Killing processes..
+
+Exiting: process '23555' terminated normally.
+mathlin@red-15:~/operativsystem/os13-lab2$ ps a
+  PID TTY      STAT   TIME COMMAND
+ 1159 tty4     Ss+    0:00 /sbin/getty -8 38400 tty4
+ 1167 tty5     Ss+    0:00 /sbin/getty -8 38400 tty5
+ 1178 tty2     Ss+    0:00 /sbin/getty -8 38400 tty2
+ 1179 tty3     Ss+    0:00 /sbin/getty -8 38400 tty3
+ 1181 tty6     Ss+    0:00 /sbin/getty -8 38400 tty6
+ 2151 tty1     Ss+    0:00 /sbin/getty -8 38400 tty1
+20932 tty7     Ss+    2:05 /usr/bin/X :0 -auth /var/run/lightdm/root/:0 -noliste
+21915 pts/0    Ss     0:00 bash
+23516 pts/0    S+     0:00 script
+23517 pts/0    S+     0:00 script
+23518 pts/1    Ss     0:00 bash -i
+23560 pts/1    R+     0:00 ps a
+mathlin@red-15:~/operativsystem/os13-lab2$ exit
+
+Script done on 2013-05-03T16:18:16 CEST
