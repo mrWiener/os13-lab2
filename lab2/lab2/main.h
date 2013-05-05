@@ -20,8 +20,6 @@
 
 #include <signal.h>     /* Needed for handling signals. */
 
-#define COMMAND_MAX_LENGTH	10
-
 #include "utils.h"      /* Needed for helper functions and macros. */
 #include "commands.h"   /* Needed for handling built in commands. */
 
