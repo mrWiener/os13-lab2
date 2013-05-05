@@ -127,7 +127,12 @@ void signalHandler(int sig) {
 
 void registerSignalToHandle(int sig) {
     /* Register the new action to handle the signal sig. */
-    CHECK(sigset(sig, signalHandler));
+    if(sigset(sig, signalHandler) == SIG_ERR) {
+        /* An error occured. */
+
+        /* Force error. */
+        CHECK(-1);
+    }
 }
 
 int main(int argc, const char * argv[]) {
