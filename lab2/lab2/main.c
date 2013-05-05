@@ -126,21 +126,8 @@ void signalHandler(int sig) {
  }
 
 void registerSignalToHandle(int sig) {
-    struct sigaction action; /* The new action to be stored in the signal handling table for the specified signal sig. */
-
-    /* Setup the new sigaction structure. */
-
-    /* Set the signalHandler to be the handler function. */
-    action.sa_handler = signalHandler;
-
-    /* Create empty set for the sa_mask. The sa_mask is for setting signals that should be ignored when handler is running. */
-    sigemptyset(&action.sa_mask);
-    
-    /* Set flags to 0, the program got no special needs. */
-    action.sa_flags = 0;
-
     /* Register the new action to handle the signal sig. */
-    CHECK(sigaction(sig, &action, NULL));
+    CHECK(sigset(sig, signalHandler));
 }
 
 int main(int argc, const char * argv[]) {
